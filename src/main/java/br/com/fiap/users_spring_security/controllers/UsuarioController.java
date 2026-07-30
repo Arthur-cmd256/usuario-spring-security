@@ -5,6 +5,8 @@ import br.com.fiap.users_spring_security.dtos.cadastrarUsuarioDTO;
 import br.com.fiap.users_spring_security.services.UsuarioService;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/usuario")
 public class UsuarioController {
@@ -18,5 +20,15 @@ public class UsuarioController {
     @PostMapping
     public UsuarioCadastradoDTO cadastrarUsuario(@RequestBody cadastrarUsuarioDTO cadastrarUsuarioDTO) {
         return usuarioService.cadastrarUsuario(cadastrarUsuarioDTO);
+    }
+
+    @GetMapping()
+    public List<UsuarioCadastradoDTO> listarUsuarios() {
+        return usuarioService.listarUsuario();
+    }
+
+    @GetMapping("/{id}")
+    public UsuarioCadastradoDTO buscarUsuarioPorId(@PathVariable Long id) {
+        return usuarioService.buscarUsuarioPorId(id);
     }
 }
