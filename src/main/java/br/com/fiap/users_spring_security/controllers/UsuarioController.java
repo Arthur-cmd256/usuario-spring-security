@@ -1,7 +1,7 @@
 package br.com.fiap.users_spring_security.controllers;
 
 import br.com.fiap.users_spring_security.dtos.UsuarioCadastradoDTO;
-import br.com.fiap.users_spring_security.dtos.cadastrarUsuarioDTO;
+import br.com.fiap.users_spring_security.dtos.CadastrarUsuarioDTO;
 import br.com.fiap.users_spring_security.services.UsuarioService;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +18,7 @@ public class UsuarioController {
     }
 
     @PostMapping
-    public UsuarioCadastradoDTO cadastrarUsuario(@RequestBody cadastrarUsuarioDTO cadastrarUsuarioDTO) {
+    public UsuarioCadastradoDTO cadastrarUsuario(@RequestBody CadastrarUsuarioDTO cadastrarUsuarioDTO) {
         return usuarioService.cadastrarUsuario(cadastrarUsuarioDTO);
     }
 
