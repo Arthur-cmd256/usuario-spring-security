@@ -5,8 +5,10 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "tb_usuario")
@@ -21,6 +23,8 @@ public class Usuario implements UserDetails {
     private String email;
     @Column(nullable = false)
     private String senha;
+    private String refreshToken;
+    private LocalDateTime expiracaoRefreshToken;
 
     public Usuario() {
     }
@@ -61,6 +65,24 @@ public class Usuario implements UserDetails {
 
     public void setSenha(String senha) {
         this.senha = senha;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public LocalDateTime getExpiracaoRefreshToken() {
+        return expiracaoRefreshToken;
+    }
+
+    public boolean refreshTokenExpirado() {
+        return expiracaoRefreshToken.isBefore(LocalDateTime.now());
+    }
+
+    public String novoRefreshToken() {
+        this.refreshToken = UUID.randomUUID().toString();
+        this.expiracaoRefreshToken = LocalDateTime.now().plusMinutes(120);
+        return refreshToken;
     }
 
     @Override

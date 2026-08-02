@@ -2,6 +2,7 @@ package br.com.fiap.users_spring_security.services;
 
 import br.com.fiap.users_spring_security.entities.Usuario;
 import br.com.fiap.users_spring_security.exceptions.TokenException;
+import br.com.fiap.users_spring_security.repositories.UsuarioRepository;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -16,6 +17,12 @@ import java.time.ZoneOffset;
 
 @Service
 public class TokenService {
+
+    private final UsuarioRepository usuarioRepository;
+
+    public TokenService(UsuarioRepository usuarioRepository) {
+        this.usuarioRepository = usuarioRepository;
+    }
 
     public String generateToken(Usuario usuario) {
         try {

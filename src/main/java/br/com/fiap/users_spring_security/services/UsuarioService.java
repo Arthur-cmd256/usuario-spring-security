@@ -5,6 +5,7 @@ import br.com.fiap.users_spring_security.dtos.CadastrarUsuarioDTO;
 import br.com.fiap.users_spring_security.entities.Usuario;
 import br.com.fiap.users_spring_security.exceptions.UsuarioNaoEncontradoException;
 import br.com.fiap.users_spring_security.repositories.UsuarioRepository;
+import br.com.fiap.users_spring_security.util.BCryptHashingUtil;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -25,7 +26,7 @@ public class UsuarioService implements UserDetailsService {
         Usuario usuario = new Usuario();
         usuario.setNome(dto.nome());
         usuario.setEmail(dto.email());
-        usuario.setSenha(dto.senha());
+        usuario.setSenha(BCryptHashingUtil.hashPassword(dto.senha()));
         usuarioRepository.save(usuario);
         return new UsuarioCadastradoDTO(usuario);
     }

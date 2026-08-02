@@ -4,6 +4,7 @@ import br.com.fiap.users_spring_security.dtos.LoginUsuarioDTO;
 import br.com.fiap.users_spring_security.dtos.TokenRefreshDTO;
 import br.com.fiap.users_spring_security.dtos.TokenResponseDTO;
 import br.com.fiap.users_spring_security.entities.Usuario;
+import br.com.fiap.users_spring_security.exceptions.TokenException;
 import br.com.fiap.users_spring_security.exceptions.UsuarioNaoEncontradoException;
 import br.com.fiap.users_spring_security.repositories.UsuarioRepository;
 import br.com.fiap.users_spring_security.services.TokenService;
@@ -36,20 +37,29 @@ public class AutenticacaoController {
     public ResponseEntity<TokenResponseDTO> efetuarLogin (@Valid @RequestBody LoginUsuarioDTO dto) {
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(dto.email(), dto.senha());
         Authentication authentication = authenticationManager.authenticate(usernamePasswordAuthenticationToken);
-        String tokenAcesso = tokenService.generateToken(( Usuario) Objects.requireNonNull(authentication.getPrincipal()));
-        String refreshToken = tokenService.gerarRefreshToken(( Usuario) Objects.requireNonNull(authentication.getPrincipal()));
+
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        String tokenAcesso = tokenService.generateToken(usuario);
+        String refreshToken = usuario.novoRefreshToken();
+        usuarioRepository.save(usuario);
+
         return ResponseEntity.ok(new TokenResponseDTO(tokenAcesso, refreshToken));
     }
 
     @PostMapping("atualizar-token")
     public ResponseEntity<TokenResponseDTO> atualizarToken (@Valid @RequestBody TokenRefreshDTO dto) {
-        Long idUsuario = Long.valueOf(tokenService.verificarToken(dto.refreshToken()));
-        Usuario usuario = usuarioRepository.findById(idUsuario).orElseThrow(
-                () -> new UsuarioNaoEncontradoException("Usuario não encontrado")
+        Usuario usuario = usuarioRepository.findByRefreshToken(dto.refreshToken()).orElseThrow(
+                () -> new TokenException("Refresh token não encontrado!")
         );
 
+        if (usuario.refreshTokenExpirado())
+            throw new TokenException("Refresh token expirado!");
+
         String tokenAcesso = tokenService.generateToken(usuario);
-        String refreshToken = tokenService.gerarRefreshToken(usuario);
+        String refreshToken = usuario.novoRefreshToken();
+
+        usuarioRepository.save(usuario);
+
         return ResponseEntity.ok(new TokenResponseDTO(tokenAcesso, refreshToken));
     }
 }
