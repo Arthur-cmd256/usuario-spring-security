@@ -5,14 +5,15 @@ import br.com.fiap.users_spring_security.dtos.cadastrarUsuarioDTO;
 import br.com.fiap.users_spring_security.entities.Usuario;
 import br.com.fiap.users_spring_security.exceptions.UsuarioNaoEncontradoException;
 import br.com.fiap.users_spring_security.repositories.UsuarioRepository;
-import br.com.fiap.users_spring_security.util.BCryptHashingUtil;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
-public class UsuarioService {
+public class UsuarioService implements UserDetailsService {
 
     private final UsuarioRepository usuarioRepository;
 
@@ -24,7 +25,7 @@ public class UsuarioService {
         Usuario usuario = new Usuario();
         usuario.setNome(dto.nome());
         usuario.setEmail(dto.email());
-        usuario.setSenha(BCryptHashingUtil.hashPassword(dto.senha()));
+        usuario.setSenha(dto.senha());
         usuarioRepository.save(usuario);
         return new UsuarioCadastradoDTO(usuario);
     }
@@ -36,5 +37,11 @@ public class UsuarioService {
     public UsuarioCadastradoDTO buscarUsuarioPorId(Long id) {
         return usuarioRepository.findById(id).map(UsuarioCadastradoDTO::new)
                 .orElseThrow(() -> new UsuarioNaoEncontradoException("Usuario não encotrado na busca"));
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return usuarioRepository.findByEmailIgnoreCase(username)
+                .orElseThrow(() -> new UsernameNotFoundException("O usuário não foi encontrado"));
     }
 }
