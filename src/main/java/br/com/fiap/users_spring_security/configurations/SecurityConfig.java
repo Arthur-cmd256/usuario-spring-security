@@ -30,7 +30,8 @@ public class SecurityConfig {
         return  http
                 .authorizeHttpRequests(
                         req -> {
-                            req.requestMatchers("/login").permitAll();
+                            req.requestMatchers(HttpMethod.POST, "/login").permitAll();
+                            req.requestMatchers(HttpMethod.POST, "/atualizar-token").permitAll();
                             req.requestMatchers(HttpMethod.POST, "/usuario").permitAll();
                             req.anyRequest().authenticated();
                         }
