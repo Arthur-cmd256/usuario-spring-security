@@ -6,9 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Table(name = "tb_usuario")
@@ -25,14 +23,22 @@ public class Usuario implements UserDetails {
     private String senha;
     private String refreshToken;
     private LocalDateTime expiracaoRefreshToken;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "tb_usuario_perfil",
+            joinColumns = @JoinColumn(name = "usuario_id"),
+            inverseJoinColumns = @JoinColumn(name = "perfil_id")
+    )
+    private Set<Perfil> perfis = new HashSet<>();
 
     public Usuario() {
     }
 
-    public Usuario(String nome, String email, String senha) {
+    public Usuario(String nome, String email, String senha, Perfil perfil) {
         this.nome = nome;
         this.email = email;
         this.senha = senha;
+        this.perfis.add(perfil);
     }
 
     public Long getId() {
@@ -67,6 +73,10 @@ public class Usuario implements UserDetails {
         this.senha = senha;
     }
 
+    public Set<Perfil> getPerfils() {
+        return perfis;
+    }
+
     public String getRefreshToken() {
         return refreshToken;
     }
@@ -87,7 +97,7 @@ public class Usuario implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return perfis;
     }
 
     @Override
@@ -98,5 +108,13 @@ public class Usuario implements UserDetails {
     @Override
     public String getUsername() {
         return this.email;
+    }
+
+    public void adicionarPefil(Perfil perfil) {
+        this.perfis.add(perfil);
+    }
+
+    public void removePerfil(Perfil perfil) {
+        this.perfis.remove(perfil);
     }
 }
