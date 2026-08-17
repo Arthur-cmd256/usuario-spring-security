@@ -3,9 +3,11 @@ package br.com.fiap.users_spring_security.controllers;
 import br.com.fiap.users_spring_security.dtos.DadosPerfilDTO;
 import br.com.fiap.users_spring_security.dtos.UsuarioCadastradoDTO;
 import br.com.fiap.users_spring_security.dtos.CadastrarUsuarioDTO;
+import br.com.fiap.users_spring_security.entities.Usuario;
 import br.com.fiap.users_spring_security.services.UsuarioService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,18 +23,24 @@ public class UsuarioController {
     }
 
     @PostMapping
-    public UsuarioCadastradoDTO cadastrarUsuario(@RequestBody CadastrarUsuarioDTO cadastrarUsuarioDTO) {
-        return usuarioService.cadastrarUsuario(cadastrarUsuarioDTO);
+    public ResponseEntity<UsuarioCadastradoDTO> cadastrarUsuario(@RequestBody CadastrarUsuarioDTO cadastrarUsuarioDTO) {
+        return ResponseEntity.ok(usuarioService.cadastrarUsuario(cadastrarUsuarioDTO));
     }
 
     @GetMapping()
-    public List<UsuarioCadastradoDTO> listarUsuarios() {
-        return usuarioService.listarUsuario();
+    public ResponseEntity<List<UsuarioCadastradoDTO>> listarUsuarios() {
+        return ResponseEntity.ok(usuarioService.listarUsuario());
     }
 
     @GetMapping("/{id}")
-    public UsuarioCadastradoDTO buscarUsuarioPorId(@PathVariable Long id) {
-        return usuarioService.buscarUsuarioPorId(id);
+    public ResponseEntity<UsuarioCadastradoDTO> buscarUsuarioPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(usuarioService.buscarUsuarioPorId(id));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity deletarUsuarioPorId(@PathVariable Long id, @AuthenticationPrincipal Usuario usuario) {
+        usuarioService.deletarUsuarioPorID(id, usuario);
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/adicionar-perfil/{id}")

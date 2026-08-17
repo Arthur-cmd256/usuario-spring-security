@@ -3,6 +3,8 @@ package br.com.fiap.users_spring_security.configurations;
 import br.com.fiap.users_spring_security.configurations.security.FiltroTokenAcesso;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -33,6 +35,7 @@ public class SecurityConfig {
                             req.requestMatchers(HttpMethod.POST, "/login").permitAll();
                             req.requestMatchers(HttpMethod.POST, "/atualizar-token").permitAll();
                             req.requestMatchers(HttpMethod.POST, "/usuario").permitAll();
+                            req.requestMatchers("/usuario/adicionar-perfil/**", "/usuario/remover-perfil/**").hasRole("ADMIN");
                             req.anyRequest().authenticated();
                         }
                 )
@@ -50,5 +53,11 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) {
         return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    RoleHierarchy roleHierarchy() {
+       String hierarchy = "ROLE_ADMIN > ROLE_USER";
+        return RoleHierarchyImpl.fromHierarchy(hierarchy);
     }
 }
