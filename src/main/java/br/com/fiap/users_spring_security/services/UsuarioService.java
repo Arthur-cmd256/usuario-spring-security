@@ -90,23 +90,23 @@ public class UsuarioService implements UserDetailsService {
     public void deletarUsuarioPorID(Long id, Usuario usuarioLogado) {
         Usuario usuarioASerDeletado = usuarioRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("O usuário não foi encontrado"));
-        if (!usuarioTemPermissoes(usuarioLogado, usuarioASerDeletado))
+        if (usuarioNaoTemPermissoes(usuarioLogado, usuarioASerDeletado, "ROLE_ADMIN"))
             throw new RegraDeNegocioException("O usuario não tem permissão de delete");
         usuarioRepository.deleteById(id);
     }
 
-    private boolean usuarioTemPermissoes(Usuario usuarioLogado, Usuario usuarioASerDeletado) {
+    private boolean usuarioNaoTemPermissoes(Usuario usuarioLogado, Usuario usuarioASerDeletado, String perfilDesejado) {
         if (usuarioLogado.getId().equals(usuarioASerDeletado.getId()))
-            return true;
+            return false;
         for (GrantedAuthority grantedAuthority : usuarioLogado.getAuthorities()) {
             var autoridadesAlcancaveis = roleHierarchy.getReachableGrantedAuthorities(List.of(grantedAuthority));
 
             for (GrantedAuthority perfil : autoridadesAlcancaveis) {
-                if (perfil.getAuthority().equalsIgnoreCase("ROLE_ADMIN"))
-                    return true;
+                if (perfil.getAuthority().equalsIgnoreCase(perfilDesejado))
+                    return false;
             }
         }
-        return false;
+        return true;
     }
 
 }
